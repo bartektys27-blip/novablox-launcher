@@ -1,0 +1,29 @@
+appId: com.novablox.launcher
+productName: NovaBlox
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**/*
+  - package.json
+  - resources/icon.png
+asarUnpack:
+  - resources/**
+win:
+  icon: resources/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: NovaBlox
+  artifactName: NovaBlox-Setup-${version}.exe
+publish:
+  provider: github
+  owner: bartektys27-blip
+  repo: novablox-launcher
+  releaseType: release
