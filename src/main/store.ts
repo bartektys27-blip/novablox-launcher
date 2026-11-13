@@ -27,6 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoStart: false,
   startMinimized: false,
   minimizeOnLaunch: false,
+  multiInstance: false,
   lastPage: 'dashboard'
 }
 

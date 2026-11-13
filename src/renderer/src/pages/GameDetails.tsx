@@ -8,7 +8,7 @@ import { useApp } from '@/store/app'
 import { useAsync } from '@/lib/useAsync'
 import { compact, date, fmt, genreName, rating, timeAgo } from '@/lib/format'
 import { ErrorState, Img, Stat } from '@/components/ui'
-import { FavoriteButton, LibraryButton, PlayButton } from '@/components/GameCard'
+import { FavoriteButton, LibraryButton, PlayAsButton, PlayButton } from '@/components/GameCard'
 import { ServerList } from '@/components/Servers'
 import { dur, total } from '@/lib/playtime'
 
@@ -99,6 +99,7 @@ export default function GameDetails({ universeId }: { universeId: number }): JSX
           <div className="flex shrink-0 items-center gap-2">
             <FavoriteButton game={game} className="!h-14 !w-14 !rounded-2xl border border-white/10" />
             <LibraryButton game={game} />
+            <PlayAsButton game={game} />
             <PlayButton game={game} size="lg" />
           </div>
         </div>

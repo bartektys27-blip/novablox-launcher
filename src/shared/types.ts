@@ -97,6 +97,8 @@ export interface Settings {
   autoStart: boolean
   startMinimized: boolean
   minimizeOnLaunch: boolean
+  /** wiele okien Roblox naraz (np. dwa konta) */
+  multiInstance: boolean
   lastPage: PageId
 }
 
@@ -244,7 +246,9 @@ export interface NovaApi {
   }
   roblox: {
     status(): Promise<RobloxStatus>
-    launch(placeId: number): Promise<void>
+    launch(placeId: number, asUserId?: number): Promise<void>
+    multiStatus(): Promise<{ active: boolean; supported: boolean }>
+    setMulti(enabled: boolean): Promise<{ active: boolean; reason?: 'roblox-running' | 'unsupported' }>
     resolveInput(input: string): Promise<GameInfo>
     games(universeIds: number[]): Promise<GameInfo[]>
     details(universeId: number): Promise<GameDetails>

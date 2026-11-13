@@ -85,6 +85,15 @@ function General(): JSX.Element {
         <Row title={t("Minimalizuj po uruchomieniu gry")} desc={t("Okno launchera schowa się, gdy odpalisz grę.")}>
           <Toggle checked={s.minimizeOnLaunch} onChange={v => set({ minimizeOnLaunch: v })} />
         </Row>
+        <Row title={t("Wiele okien Roblox naraz")} desc={t("Pozwala grać na kilku kontach jednocześnie. Na stronie gry pojawi się przycisk „Na koncie…”. Działa dla kont dodanych przez „Logowanie Roblox”. Włącz przed uruchomieniem Robloxa.")}>
+          <Toggle checked={s.multiInstance} disabled={busy} onChange={async v => {
+            const r = await window.nova.roblox.setMulti(v).catch((e: Error) => { toast.error(t("Błąd"), e.message); return null })
+            if (!r) return
+            set({ multiInstance: v })
+            if (v && !r.active) toast.info(t("Tryb wielu okien włączony"), r.reason === 'roblox-running' ? t("Zamknij wszystkie okna Roblox – tryb zadziała przy następnym uruchomieniu gry.") : t("Ta funkcja działa tylko w Windows."))
+            else if (v) toast.success(t("Tryb wielu okien włączony"), t("Możesz uruchomić grę na kilku kontach naraz."))
+          }} />
+        </Row>
       </Card>
       <Card title={t("Nawigacja")} icon={Layers}>
         <Row title={t("Pamiętaj ostatnio otwartą sekcję")} desc={t("Po ponownym uruchomieniu wrócisz tam, gdzie skończyłeś. Ostatnia sekcja jest zapisywana automatycznie.")}>

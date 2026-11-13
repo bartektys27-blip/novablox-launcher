@@ -47,7 +47,7 @@ interface AppState extends PersistedState {
   removeFromLibrary(universeId: number): void
   toggleFavorite(g: CardGame): void
   refreshLibrary(): Promise<void>
-  launch(g: CardGame): Promise<void>
+  launch(g: CardGame, asUserId?: number): Promise<void>
   clearHistory(): void
   clearLibrary(): void
 
@@ -235,11 +235,11 @@ export const useApp = create<AppState>((set, get) => {
       } catch { /* offline – zostają zapisane dane */ }
     },
 
-    async launch(g) {
+    async launch(g, asUserId) {
       if (get().launching) return
       set({ launching: g.universeId })
       try {
-        await window.nova.roblox.launch(g.placeId)
+        await window.nova.roblox.launch(g.placeId, asUserId)
         const now = Date.now()
         const entry: HistoryEntry = { id: uid(), universeId: g.universeId, placeId: g.placeId, name: g.name, iconUrl: g.iconUrl, launchedAt: now }
         update({

@@ -618,5 +618,16 @@
   "Uruchom tę grę": "Launch this game",
   "Dołączanie do {0}…": "Joining {0}…",
   "Uruchamianie gry…": "Launching game…",
-  "Online": "Online"
+  "Online": "Online",
+  "Wiele okien Roblox naraz": "Multiple Roblox windows",
+  "Pozwala grać na kilku kontach jednocześnie. Na stronie gry pojawi się przycisk „Na koncie…”. Działa dla kont dodanych przez „Logowanie Roblox”. Włącz przed uruchomieniem Robloxa.": "Play on several accounts at once. A “On account…” button appears on game pages. Works for accounts added via “Roblox login”. Enable before starting Roblox.",
+  "Tryb wielu okien włączony": "Multi-window mode on",
+  "Zamknij wszystkie okna Roblox – tryb zadziała przy następnym uruchomieniu gry.": "Close all Roblox windows – the mode will work on the next game launch.",
+  "Ta funkcja działa tylko w Windows.": "This feature only works on Windows.",
+  "Możesz uruchomić grę na kilku kontach naraz.": "You can launch games on several accounts at once.",
+  "Graj na innym koncie": "Play on another account",
+  "Na koncie…": "On account…",
+  "Uruchom w nowym oknie jako": "Launch in a new window as",
+  "To konto nie ma zapisanej sesji Roblox – zaloguj je przez „Logowanie Roblox”": "This account has no saved Roblox session – sign it in via “Roblox login”",
+  "Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie": "Multi-window mode: close all Roblox windows and launch the game again"
 }

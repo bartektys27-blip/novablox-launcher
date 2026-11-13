@@ -10,6 +10,7 @@ import * as playtime from './playtime'
 import * as mods from './mods'
 import * as rsession from './roblox-session'
 import * as discord from './discord'
+import * as multi from './multi'
 import { DEFAULT_STATE } from './store'
 import { L } from './i18n'
 import { autoUpdater } from 'electron-updater'
@@ -110,14 +111,14 @@ handle('roblox:status', (): RobloxStatus => {
   const handler = app.getApplicationNameForProtocol('roblox://') || null
   return { installed: !!handler, handler }
 })
-handle('roblox:launch', async (placeId: number) => {
+handle('roblox:launch', async (placeId: number, asUserId?: number) => {
   if (!isPos(placeId)) throw new Error(L("Nieprawidłowe ID gry"))
   if (!app.getApplicationNameForProtocol('roblox://') && process.platform === 'win32') {
     throw new Error(L("Roblox nie jest zainstalowany. Pobierz go ze strony roblox.com/download"))
   }
   mods.applyBeforeLaunch()
   noteLaunch(placeId)
-  if (await launchAsAccount(placeId, null)) return
+  if (await launchAsAccount(placeId, null, isPos(asUserId) ? asUserId : undefined)) return
   await shell.openExternal(`roblox://experiences/start?placeId=${placeId}`)
   if (loadState().settings.minimizeOnLaunch) win?.minimize()
 })
@@ -135,6 +136,13 @@ handle('roblox:joinServer', async (placeId: number, serverId: string) => {
 handle('roblox:servers', (placeId: number, cursor: string | null, order: 'Asc' | 'Desc') => {
   if (!isPos(placeId)) throw new Error(L('Złe ID'))
   return api.getServers(placeId, cursor ? String(cursor) : null, order === 'Asc' ? 'Asc' : 'Desc')
+})
+handle('roblox:multiStatus', () => ({ active: multi.isActive(), supported: process.platform === 'win32' }))
+handle('roblox:setMulti', async (enabled: boolean) => {
+  if (!enabled) { multi.disable(); patchState({ settings: { ...loadState().settings, multiInstance: false } }); return { active: false } }
+  patchState({ settings: { ...loadState().settings, multiInstance: true } })
+  const r = await multi.enable()
+  return { active: r.ok, reason: r.reason }
 })
 handle('roblox:presence', (ids: number[]) => api.getPresence((ids ?? []).filter(isPos), cookieFor(loadState().account?.userId)))
 handle('roblox:playtimeStatus', () => playtime.status())
@@ -196,15 +204,22 @@ handle('backup:import', async () => {
 })
 
 /** Gdy aktywne jest konto zalogowane przez Roblox – uruchom grę biletem tego konta */
-async function launchAsAccount(placeId: number, jobId: string | null): Promise<boolean> {
-  const acc = loadState().account
+async function launchAsAccount(placeId: number, jobId: string | null, asUserId?: number): Promise<boolean> {
+  const st = loadState()
+  const acc = asUserId ? st.accounts.find(a => a.userId === asUserId) : st.account
+  if (asUserId && (acc?.mode !== 'cookie' || !rsession.hasCookie(asUserId))) throw new Error(L('To konto nie ma zapisanej sesji Roblox – zaloguj je przez „Logowanie Roblox”'))
   if (acc?.mode !== 'cookie' || !rsession.hasCookie(acc.userId)) return false
+  if (st.settings.multiInstance && !multi.isActive()) {
+    const r = await multi.enable()
+    if (!r.ok && r.reason === 'roblox-running') throw new Error(L('Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie'))
+  }
   try {
     await rsession.launchWithAccount(acc.userId, placeId, jobId, uri => shell.openExternal(uri))
   } catch (e) {
     if ((e as Error).message === L('Sesja konta wygasła – zaloguj się ponownie w Ustawienia → Konto')) {
       const expired = { ...acc, expired: true }
-      patchState({ account: expired, accounts: loadState().accounts.map(a => (a.userId === acc.userId ? expired : a)) })
+      const cur = loadState()
+      patchState({ ...(cur.account?.userId === acc.userId ? { account: expired } : {}), accounts: cur.accounts.map(a => (a.userId === acc.userId ? expired : a)) })
       win?.webContents.send('account:expired', acc.userId)
     }
     throw e
@@ -370,9 +385,11 @@ app.whenReady().then(async () => {
     const expired = { ...st.account, expired: true }
     patchState({ account: expired, accounts: st.accounts.map(a => (a.userId === expired.userId ? expired : a)) })
   }
+  if (loadState().settings.multiInstance) void multi.enable()
   createWindow()
 })
 app.on('before-quit', () => {
+  multi.disable()
   discord.shutdown()
   playtime.flush((s: PlaySession) => patchState({ playtime: [...loadState().playtime, s].slice(-3000) }))
 })

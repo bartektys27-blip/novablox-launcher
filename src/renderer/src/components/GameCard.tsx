@@ -1,7 +1,7 @@
 import { t } from '@/lib/i18n'
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Heart, Loader2, Play, Plus, ThumbsUp, Trash2, Users, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Loader2, Play, Plus, ThumbsUp, Trash2, Users, Check, Layers } from 'lucide-react'
 import clsx from 'clsx'
 import { useApp, type CardGame } from '@/store/app'
 import { compact, genreName, rating } from '@/lib/format'
@@ -19,6 +19,43 @@ export function PlayButton({ game, size = 'md', className }: { game: CardGame; s
       {launching ? <Loader2 size={size === 'lg' ? 20 : 16} className="animate-spin" /> : <Play size={size === 'lg' ? 20 : 16} fill="currentColor" />}
       {size === 'sm' ? t("Graj") : 'PLAY'}
     </button>
+  )
+}
+
+/** Graj na wybranym koncie – widoczne przy włączonym trybie wielu okien */
+export function PlayAsButton({ game }: { game: CardGame }): JSX.Element | null {
+  const multi = useApp(s => s.settings.multiInstance)
+  const allAccounts = useApp(s => s.accounts)
+  const launch = useApp(s => s.launch)
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const close = (e: MouseEvent): void => { if (!ref.current?.contains(e.target as Node)) setOpen(false) }
+    window.addEventListener('mousedown', close)
+    return () => window.removeEventListener('mousedown', close)
+  }, [open])
+  const accounts = allAccounts.filter(a => a.mode === 'cookie' && !a.expired)
+  if (!multi || accounts.length === 0) return null
+  return (
+    <div ref={ref} className="relative">
+      <button className="btn-secondary h-14 rounded-2xl px-4" title={t("Graj na innym koncie")} onClick={() => setOpen(o => !o)}>
+        <Layers size={18} /> {t("Na koncie…")}
+      </button>
+      {open && (
+        <div className="panel absolute bottom-16 right-0 z-30 w-64 p-2">
+          <div className="label px-2 pb-1 pt-1">{t("Uruchom w nowym oknie jako")}</div>
+          {accounts.map(a => (
+            <button key={a.userId} className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-sm hover:bg-fg/10"
+              onClick={() => { setOpen(false); void launch(game, a.userId) }}>
+              <Play size={14} className="text-accent" fill="currentColor" />
+              <span className="flex-1 truncate font-medium">{a.displayName}</span>
+              <span className="truncate text-xs text-muted">@{a.username}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 

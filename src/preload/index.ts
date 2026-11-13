@@ -25,7 +25,9 @@ const api: NovaApi = {
   },
   roblox: {
     status: () => call('roblox:status'),
-    launch: id => call('roblox:launch', id),
+    launch: (id, as) => call('roblox:launch', id, as),
+    multiStatus: () => call('roblox:multiStatus'),
+    setMulti: e => call('roblox:setMulti', e),
     resolveInput: i => call('roblox:resolveInput', i),
     games: ids => call('roblox:games', ids),
     details: id => call('roblox:details', id),
