@@ -350,14 +350,14 @@ const PRESENCE = ['offline', 'online', 'in-game', 'in-studio', 'invisible'] as c
 export async function getPresence(userIds: number[], cookie: string | null = null): Promise<import('@shared/types').FriendPresence[]> {
   const ids = [...new Set(userIds.filter(n => Number.isInteger(n) && n > 0))].slice(0, 100)
   if (!ids.length) return []
-  type PR = { userPresences: { userId: number; userPresenceType: number; lastLocation?: string; universeId?: number | null; placeId?: number | null; rootPlaceId?: number | null; lastOnline?: string }[] }
+  type PR = { userPresences: { userId: number; userPresenceType: number; lastLocation?: string; universeId?: number | null; placeId?: number | null; rootPlaceId?: number | null; gameId?: string | null; lastOnline?: string }[] }
   let r: PR
   if (cookie) {
     const { authed } = await import('./roblox-session')
     const res = await authed('https://presence.roblox.com/v1/presence/users', cookie, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userIds: ids }) })
     if (!res.ok) throw new ApiError(L('Roblox zwrócił błąd {0}', [res.status]), res.status)
     r = (await res.json()) as PR
-  } else r = await request<{ userPresences: { userId: number; userPresenceType: number; lastLocation?: string; universeId?: number | null; placeId?: number | null; rootPlaceId?: number | null; lastOnline?: string }[] }>(
+  } else r = await request<{ userPresences: { userId: number; userPresenceType: number; lastLocation?: string; universeId?: number | null; placeId?: number | null; rootPlaceId?: number | null; gameId?: string | null; lastOnline?: string }[] }>(
     'https://presence.roblox.com/v1/presence/users',
     { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userIds: ids }) },
     30_000)
@@ -367,6 +367,8 @@ export async function getPresence(userIds: number[], cookie: string | null = nul
     location: p.lastLocation ?? '',
     universeId: p.universeId ?? null,
     placeId: p.rootPlaceId ?? p.placeId ?? null,
+    joinPlaceId: p.placeId ?? null,
+    gameId: p.gameId ?? null,
     lastOnline: p.lastOnline ?? null
   }))
 }

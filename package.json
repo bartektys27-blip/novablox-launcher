@@ -1,7 +1,7 @@
 {
   "name": "novablox-launcher",
   "productName": "NovaBlox",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Premium launcher do Roblox dla Windows",
   "main": "./out/main/index.js",
   "author": "NovaBlox",

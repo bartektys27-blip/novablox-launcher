@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Friend, FriendPresence } from '@shared/types'
+import type { Friend, FriendPresence, GameInfo } from '@shared/types'
 import { useApp } from '@/store/app'
 import { t } from './i18n'
 
@@ -7,6 +7,8 @@ interface FriendsState {
   userId: number | null
   friends: Friend[]
   presence: Record<number, FriendPresence>
+  /** gry, w które grają znajomi (universeId -> info) */
+  games: Record<number, GameInfo>
   error: string | null
   loading: boolean
   updatedAt: number
@@ -23,6 +25,7 @@ export const useFriends = create<FriendsState>((set, get) => ({
   userId: null,
   friends: [],
   presence: {},
+  games: {},
   error: null,
   loading: false,
   updatedAt: 0,
@@ -63,7 +66,18 @@ export const useFriends = create<FriendsState>((set, get) => ({
           }
         }
       }
-      set({ friends, presence: next, error: null, updatedAt: Date.now() })
+      // Nazwy i ikony gier, w które grają znajomi
+      const known = get().games
+      const missing = [...new Set(list.filter(p => p.type === 'in-game' && p.universeId && !known[p.universeId]).map(p => p.universeId!))]
+      let games = known
+      if (missing.length) {
+        try {
+          const info = await window.nova.roblox.games(missing)
+          games = { ...known }
+          for (const g of info) games[g.universeId] = g
+        } catch { /* nazwa gry opcjonalna */ }
+      }
+      set({ friends, presence: next, games, error: null, updatedAt: Date.now() })
     } catch (e) {
       set({ error: (e as Error).message })
     } finally {
@@ -78,7 +92,10 @@ export const presenceRank = (p?: FriendPresence): number =>
 export function presenceLabel(p?: FriendPresence): string {
   if (!p) return t('Offline')
   switch (p.type) {
-    case 'in-game': return p.location ? t('Gra: {0}', [p.location]) : t('W grze')
+    case 'in-game': {
+      const name = friendGame(p)?.name || p.location
+      return name ? t('Gra: {0}', [name]) : t('W grze')
+    }
     case 'in-studio': return t('W Roblox Studio')
     case 'online': return t('Online')
     default: return t('Offline')
@@ -87,3 +104,9 @@ export function presenceLabel(p?: FriendPresence): string {
 
 export const presenceColor = (p?: FriendPresence): string =>
   !p ? 'bg-fg/30' : p.type === 'in-game' ? 'bg-success' : p.type === 'in-studio' ? 'bg-warn' : p.type === 'online' ? 'bg-accent2' : 'bg-fg/30'
+
+/** Gra, w którą gra znajomy (jeśli Roblox udostępnia ją w statusie) */
+export function friendGame(p?: FriendPresence): GameInfo | null {
+  if (!p || p.type !== 'in-game' || !p.universeId) return null
+  return useFriends.getState().games[p.universeId] ?? null
+}

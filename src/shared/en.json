@@ -609,5 +609,14 @@
   "Zaktualizuj teraz": "Update now",
   "Zaktualizuj": "Update",
   "Automatyczna instalacja działa tylko w zainstalowanej wersji (EXE)": "Automatic install only works in the installed version (EXE)",
-  "Brak nowej wersji": "No new version"
+  "Brak nowej wersji": "No new version",
+  "Grają teraz": "Playing now",
+  "Ukryta gra": "Hidden game",
+  "Znajomych w grze: {0}": "Friends in game: {0}",
+  "Szczegóły gry": "Game details",
+  "Dołącz na ten sam serwer": "Join the same server",
+  "Uruchom tę grę": "Launch this game",
+  "Dołączanie do {0}…": "Joining {0}…",
+  "Uruchamianie gry…": "Launching game…",
+  "Online": "Online"
 }

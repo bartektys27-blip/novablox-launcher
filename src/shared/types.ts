@@ -133,6 +133,9 @@ export interface FriendPresence {
   location: string
   universeId: number | null
   placeId: number | null
+  /** miejsce + instancja serwera – do dołączenia do znajomego (gdy Roblox je udostępnia) */
+  joinPlaceId: number | null
+  gameId: string | null
   lastOnline: string | null
 }
 
