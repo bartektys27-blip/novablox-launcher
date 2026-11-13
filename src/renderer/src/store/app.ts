@@ -6,7 +6,7 @@ import type {
 import { getLang, setLang, t } from '@/lib/i18n'
 import { applyTheme } from '@/lib/themes'
 import { uid } from '@/lib/format'
-import { toast } from './ui'
+import { confirmAction, toast } from './ui'
 
 export type Route = { page: PageId } | { page: 'game'; universeId: number; from: PageId }
 
@@ -251,7 +251,20 @@ export const useApp = create<AppState>((set, get) => {
         if (s.enabled && s.onLaunch) get().notify(t("Uruchamianie gry"), t("{0} otwiera się w Roblox", [g.name]), 'success', true)
         toast.success(t("Uruchamianie…"), t("{0} otworzy się w aplikacji Roblox", [g.name]))
       } catch (e) {
-        toast.error('Nie udało się uruchomić gry', (e as Error).message)
+        const msg = (e as Error).message
+        if (msg.startsWith('MULTI_RUNNING:')) {
+          set({ launching: null })
+          const ok = await confirmAction({
+            title: t("Roblox jest już otwarty"),
+            body: t("Żeby grać na kilku kontach naraz, Roblox musi wystartować po włączeniu trybu wielu okien. Zamknąć otwarte okna Roblox i uruchomić grę ponownie? Niezapisany postęp w grze może przepaść."),
+            confirmLabel: t("Zamknij Roblox i uruchom"),
+            danger: true
+          })
+          if (!ok) return
+          try { await window.nova.roblox.restartForMulti() } catch (err) { toast.error(t("Nie udało się uruchomić gry"), (err as Error).message); return }
+          return get().launch(g, asUserId)
+        }
+        toast.error(t("Nie udało się uruchomić gry"), msg)
         // sesja konta mogła wygasnąć – odśwież stan konta z dysku
         window.nova.store.get().then(st => set({ account: st.account, accounts: st.accounts })).catch(() => {})
       } finally {

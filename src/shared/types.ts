@@ -248,6 +248,7 @@ export interface NovaApi {
     status(): Promise<RobloxStatus>
     launch(placeId: number, asUserId?: number): Promise<void>
     multiStatus(): Promise<{ active: boolean; supported: boolean }>
+    restartForMulti(): Promise<boolean>
     setMulti(enabled: boolean): Promise<{ active: boolean; reason?: 'roblox-running' | 'unsupported' }>
     resolveInput(input: string): Promise<GameInfo>
     games(universeIds: number[]): Promise<GameInfo[]>

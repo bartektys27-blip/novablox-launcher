@@ -144,6 +144,12 @@ handle('roblox:setMulti', async (enabled: boolean) => {
   const r = await multi.enable()
   return { active: r.ok, reason: r.reason }
 })
+handle('roblox:restartForMulti', async () => {
+  await multi.closeRoblox()
+  const r = await multi.enable()
+  if (!r.ok) throw new Error(L('Nie udało się włączyć trybu wielu okien'))
+  return true
+})
 handle('roblox:presence', (ids: number[]) => api.getPresence((ids ?? []).filter(isPos), cookieFor(loadState().account?.userId)))
 handle('roblox:playtimeStatus', () => playtime.status())
 
@@ -211,7 +217,7 @@ async function launchAsAccount(placeId: number, jobId: string | null, asUserId?:
   if (acc?.mode !== 'cookie' || !rsession.hasCookie(acc.userId)) return false
   if (st.settings.multiInstance && !multi.isActive()) {
     const r = await multi.enable()
-    if (!r.ok && r.reason === 'roblox-running') throw new Error(L('Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie'))
+    if (!r.ok && r.reason === 'roblox-running') throw new Error('MULTI_RUNNING:' + L('Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie'))
   }
   try {
     await rsession.launchWithAccount(acc.userId, placeId, jobId, uri => shell.openExternal(uri))

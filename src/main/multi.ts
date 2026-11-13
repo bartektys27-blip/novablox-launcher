@@ -50,3 +50,11 @@ export function disable(): void {
   if (holder && holder.exitCode === null) holder.kill()
   holder = null
 }
+
+/** Zamyka wszystkie okna Roblox (po potwierdzeniu użytkownika) i czeka, aż znikną */
+export async function closeRoblox(): Promise<void> {
+  if (process.platform !== 'win32') return
+  await new Promise<void>(resolve => execFile('taskkill', ['/IM', 'RobloxPlayerBeta.exe', '/F'], { windowsHide: true }, () => resolve()))
+  for (let i = 0; i < 20 && (await robloxRunning()); i++) await new Promise(r => setTimeout(r, 250))
+  await new Promise(r => setTimeout(r, 500))
+}

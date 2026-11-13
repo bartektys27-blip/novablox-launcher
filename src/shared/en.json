@@ -629,5 +629,10 @@
   "Na koncie…": "On account…",
   "Uruchom w nowym oknie jako": "Launch in a new window as",
   "To konto nie ma zapisanej sesji Roblox – zaloguj je przez „Logowanie Roblox”": "This account has no saved Roblox session – sign it in via “Roblox login”",
-  "Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie": "Multi-window mode: close all Roblox windows and launch the game again"
+  "Tryb wielu okien: zamknij wszystkie okna Roblox i uruchom grę ponownie": "Multi-window mode: close all Roblox windows and launch the game again",
+  "Roblox jest już otwarty": "Roblox is already open",
+  "Żeby grać na kilku kontach naraz, Roblox musi wystartować po włączeniu trybu wielu okien. Zamknąć otwarte okna Roblox i uruchomić grę ponownie? Niezapisany postęp w grze może przepaść.": "To play on several accounts at once, Roblox has to start after multi-window mode is on. Close open Roblox windows and launch the game again? Unsaved game progress may be lost.",
+  "Zamknij Roblox i uruchom": "Close Roblox and launch",
+  "Nie udało się uruchomić gry": "Couldn't launch the game",
+  "Nie udało się włączyć trybu wielu okien": "Couldn't enable multi-window mode"
 }
